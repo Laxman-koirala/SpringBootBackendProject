@@ -6,6 +6,10 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 @Entity
 @Table(name="User")
@@ -15,10 +19,21 @@ public class User {
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	private Long id;
 	
-	@Column(name="user_name", nullable=false, length=100)
+	@NotBlank
+	@Column(name="user_name",length=100)
+	@Size(min=3, message="name must be more than or equal to 3 characters")
 	private String name;
+	
+	@NotBlank
+	@Size(min=8, message="password must be more than or equal to 8 characters")
 	private String password;
+	
+	@Email(regexp = ".+@.+\\..+", message ="Your email address is not valid") 
+	@NotBlank
 	private String email;
+	
+	@NotBlank
+	@Size(min=10, max=200, message="must contain at least 10 characters")
 	private String about;
 	
 	public User() {

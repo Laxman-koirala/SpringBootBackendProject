@@ -1,6 +1,9 @@
 package rest.api.springboot.rest.controllers;
 
 import java.util.List;
+
+import javax.validation.Valid;
+
 import rest.api.springboot.rest.services.UserService;
 import rest.api.springboot.rest.response.msg.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -39,33 +43,22 @@ public class UserController {
 	@GetMapping("/users/{userId}")
 	public ResponseEntity<User> getUser(@PathVariable(value="userId") String userId){
 		User getuser = userService.getUser(Long.parseLong(userId));
-		try {
-			return new ResponseEntity<User>(getuser, HttpStatus.OK);
-			
-		}catch(Exception e) {
-			return new ResponseEntity<User>(getuser,HttpStatus.NOT_FOUND);
-		}
+		return new ResponseEntity<User>(getuser, HttpStatus.OK);
+		
 	}
 	
 	@PostMapping("/users")
-	public ResponseEntity<User> createUser(@RequestBody User user) {
+	public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
 		User postUser = userService.createUser(user);
 		return new ResponseEntity<User>(postUser, HttpStatus.CREATED);
 		
 	}
 	
 	@PutMapping("/users/{userId}")
-	public ResponseEntity<User> updateUser(@PathVariable(value="userId") String userId, @RequestBody User user) {
-		
+	public ResponseEntity<User> updateUser(@Valid @RequestBody User user,@PathVariable(value="userId") String userId) {
 		User putUser = userService.updateUser(user, Long.parseLong(userId));
+		return new ResponseEntity<User>(putUser, HttpStatus.OK);
 
-		try {
-			return new ResponseEntity<User>(putUser, HttpStatus.OK);
-			
-		}catch(Exception e) {
-			return new ResponseEntity<User>(putUser,HttpStatus.NOT_FOUND);
-		}
-		
 	}
 	
 	@DeleteMapping("/users/{userId}")
