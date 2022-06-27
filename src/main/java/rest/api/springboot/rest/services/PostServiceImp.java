@@ -4,6 +4,10 @@ import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import rest.api.springboot.rest.entities.Category;
@@ -12,6 +16,7 @@ import rest.api.springboot.rest.entities.User;
 import rest.api.springboot.rest.exceptions.ResourceNotFoundException;
 import rest.api.springboot.rest.repository.PostRepo;
 import rest.api.springboot.rest.repository.UserRepo;
+import rest.api.springboot.rest.response.msg.PostResponse;
 import rest.api.springboot.rest.repository.CategoryRepo;
 
 @Service
@@ -27,8 +32,30 @@ public class PostServiceImp implements PostService{
 	CategoryRepo categoryRepo;
 
 	@Override
-	public List<Post> getPosts() {
-		return postRepo.findAll();
+	public PostResponse getPosts(int pageNumber, int pageSize, String sortBy, String sortDir) {
+		
+		Sort sort = null;
+		if (sortDir.equalsIgnoreCase("asc")) {
+			sort = Sort.by(sortBy).ascending();
+		}else {
+			sort = Sort.by(sortBy).descending();
+		}
+			
+		
+		Pageable pa = PageRequest.of(pageNumber, pageSize, sort);
+		
+		Page<Post> pagePost = postRepo.findAll(pa);
+		List<Post> posts = pagePost.getContent();
+		
+		PostResponse pr = new PostResponse();
+		pr.setContent(posts);
+		pr.setPageNumber(pagePost.getNumber());
+		pr.setPageSize(pagePost.getSize());
+		pr.setTotalElements(pagePost.getTotalElements());
+		pr.setTotalPages(pagePost.getTotalPages());
+		pr.setLastpage(pagePost.isLast());
+		
+		return pr;
 	}
 
 	@Override
@@ -49,8 +76,7 @@ public class PostServiceImp implements PostService{
 
 	@Override
 	public List<Post> searchPost(String keyword) {
-		// TODO Auto-generated method stub
-		return null;
+		return postRepo.findByTitleContaining(keyword);
 	}
 
 	@Override
